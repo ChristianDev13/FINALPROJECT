@@ -12,6 +12,8 @@ import {
   WandSparkles,
   X,
 } from 'lucide-react'
+import { useLocation } from 'react-router-dom'
+import { authApi } from './api/auth.js'
 
 const features = [
   {
@@ -109,8 +111,22 @@ function App() {
   const [selectedTemplate, setSelectedTemplate] = useState('')
   const [previewTemplate, setPreviewTemplate] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [signedIn, setSignedIn] = useState(Boolean(authApi.getToken()))
+  const location = useLocation()
+  const [authNotice, setAuthNotice] = useState(location.state?.authNotice ?? '')
 
   const closeMenu = () => setMenuOpen(false)
+
+  async function handleLogout() {
+    try {
+      await authApi.logout()
+      setSignedIn(false)
+      setAuthNotice('You have been logged out.')
+    } catch {
+      setSignedIn(false)
+      setAuthNotice('Your local session ended, but the server could not confirm logout. Please check your connection.')
+    }
+  }
 
   return (
     <div className="min-h-screen overflow-hidden bg-[#08090c] text-white">
@@ -133,12 +149,23 @@ function App() {
         <nav className={`site-nav${menuOpen ? ' site-nav--open' : ''}`} aria-label="Main navigation">
           <a href="#home" onClick={closeMenu}>Home</a>
           <a href="#templates" onClick={closeMenu}>Templates</a>
+          {signedIn ? (
+            <button className="nav-button nav-button--dark" type="button" onClick={handleLogout}>Log out</button>
+          ) : (
+            <>
+              <a href="/login" onClick={closeMenu}>Login</a>
+              <a className="nav-button nav-button--dark" href="/register" onClick={closeMenu}>Register</a>
+            </>
+          )}
           <a className="nav-button nav-button--light" href="#templates" onClick={closeMenu}>Get started</a>
-          <a className="nav-button nav-button--dark" href="#contact" onClick={closeMenu}>Contact</a>
+          <a href="#contact" onClick={closeMenu}>Contact</a>
         </nav>
       </header>
 
       <main>
+        {authNotice && (
+          <p className="auth-success" role="status">{authNotice}</p>
+        )}
         <section id="home" className="hero-section">
           <div className="hero-copy">
             <p className="eyebrow">Your next chapter starts here</p>
