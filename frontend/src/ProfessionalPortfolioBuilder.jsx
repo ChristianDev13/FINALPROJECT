@@ -124,7 +124,7 @@ function ProfessionalPortfolioBuilder() {
 
   return (
     <main className="professional-builder-page">
-      <header className="professional-builder-header">
+      <header className="professional-builder-header" data-sticky-nav>
         <Link to="/#templates"><ArrowLeft size={16} /> Templates</Link>
         <span><BriefcaseBusiness size={16} /> Professional portfolio</span>
         <Link to="/portfolio/professional">View portfolio <ArrowUpRight size={15} /></Link>

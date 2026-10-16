@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Menu, X } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { authApi } from './api/auth.js'
 
@@ -47,6 +47,7 @@ function AuthPage() {
   const location = useLocation()
   const isRegister = location.pathname === '/register'
   const navigate = useNavigate()
+  const [menuOpen, setMenuOpen] = useState(false)
   const [form, setForm] = useState(() => ({
     name: '',
     email: location.state?.email ?? '',
@@ -56,6 +57,7 @@ function AuthPage() {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const registrationNotice = !isRegister ? location.state?.registrationNotice : ''
+  const closeMenu = () => setMenuOpen(false)
 
   function updateField(event) {
     setForm((current) => ({ ...current, [event.target.name]: event.target.value }))
@@ -112,6 +114,45 @@ function AuthPage() {
   return (
     <main className={`auth-page${isRegister ? ' auth-page--register' : ' auth-page--login'}`}>
       <div className="auth-grid" aria-hidden="true" />
+      <header className="site-header auth-site-header" data-sticky-nav>
+        <Link className="brand" to="/" aria-label="Ptech home" onClick={closeMenu}>
+          <img src="/assets/small-logo.png" alt="" />
+          <span className="brand-name">Ptech</span>
+          <span className="brand-divider" />
+          <span className="brand-caption">Technologies</span>
+        </Link>
+        <button
+          className="menu-toggle"
+          type="button"
+          aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          {menuOpen ? <X size={21} /> : <Menu size={21} />}
+        </button>
+        <nav className={`site-nav${menuOpen ? ' site-nav--open' : ''}`} aria-label="Main navigation">
+          <Link to="/#home" onClick={closeMenu}>Home</Link>
+          <Link to="/#templates" onClick={closeMenu}>Templates</Link>
+          <Link
+            className={`nav-button nav-button--dark${!isRegister ? ' auth-nav-current' : ''}`}
+            to="/login"
+            aria-current={!isRegister ? 'page' : undefined}
+            onClick={closeMenu}
+          >
+            Login
+          </Link>
+          <Link
+            className={`nav-button nav-button--dark${isRegister ? ' auth-nav-current' : ''}`}
+            to="/register"
+            aria-current={isRegister ? 'page' : undefined}
+            onClick={closeMenu}
+          >
+            Register
+          </Link>
+          <Link className="nav-button nav-button--light" to="/#templates" onClick={closeMenu}>Get started</Link>
+          <Link to="/#contact" onClick={closeMenu}>Contact</Link>
+        </nav>
+      </header>
       <section className="auth-card" aria-label={isRegister ? 'Create an account' : 'Sign in'}>
         <div className="auth-form-panel">
           <Link className="auth-mark" to="/" aria-label="Ptech home">

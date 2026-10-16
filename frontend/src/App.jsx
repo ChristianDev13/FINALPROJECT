@@ -160,7 +160,7 @@ function App() {
 
   return (
     <div className="min-h-screen overflow-x-clip bg-[#08090c] text-white">
-      <header className="site-header">
+      <header className="site-header" data-sticky-nav>
         <a className="brand" href="#home" aria-label="Ptech home" onClick={closeMenu}>
           <img src="/assets/small-logo.png" alt="" />
           <span className="brand-name">Ptech</span>

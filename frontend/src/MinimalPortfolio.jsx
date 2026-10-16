@@ -51,7 +51,7 @@ function MinimalPortfolio() {
 
   return (
     <main className="minimal-portfolio-page">
-      <header className="minimal-portfolio-header">
+      <header className="minimal-portfolio-header" data-sticky-nav>
         <a className="minimal-portfolio-brand" href="#top">{portfolio.name || 'Portfolio'}</a>
         <nav aria-label="Portfolio sections">
           <a href="#about">About</a>

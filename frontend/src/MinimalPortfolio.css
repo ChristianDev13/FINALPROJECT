@@ -7,6 +7,7 @@
 }
 
 .minimal-portfolio-header {
+  --sticky-nav-surface: rgba(244, 244, 242, 0.72);
   position: sticky;
   top: 0;
   z-index: 30;

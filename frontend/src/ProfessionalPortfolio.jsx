@@ -67,7 +67,7 @@ function ProfessionalPortfolio() {
 
   return (
     <main className="professional-portfolio-page">
-      <header className="professional-portfolio-header">
+      <header className="professional-portfolio-header" data-sticky-nav>
         <a className="professional-portfolio-brand" href="#top">{portfolio.name || 'Professional Profile'}</a>
         <nav aria-label="Portfolio sections">
           <a href="#summary">Summary</a>
