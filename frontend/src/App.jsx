@@ -12,7 +12,7 @@ import {
   WandSparkles,
   X,
 } from 'lucide-react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { authApi } from './api/auth.js'
 
 const features = [
@@ -69,50 +69,74 @@ const templates = [
 function TemplateArtwork({ kind }) {
   return (
     <div className={`template-art template-art--${kind}`} aria-hidden="true">
-      <div className="art-topbar">
-        <span />
-        <span />
-        <span />
-      </div>
-      <div className="art-layout">
-        <div className="art-sidebar">
-          <i />
-          <i />
-          <i />
-          <i />
-          <i />
-        </div>
-        <div className="art-main">
-          <div className="art-cover">
-            <span />
-            <span />
+      {kind === 'minimal' && (
+        <div className="template-preview template-preview--minimal">
+          <div className="preview-minimal-nav"><i /><span /><span /></div>
+          <div className="preview-minimal-hero">
+            <div className="preview-minimal-avatar" />
+            <div className="preview-minimal-copy"><i /><i /><i /></div>
           </div>
-          <div className="art-lines">
-            <i />
-            <i />
-            <i />
+          <div className="preview-minimal-section">
+            <i className="preview-minimal-heading" />
+            <i /><i /><i className="preview-line-short" />
           </div>
-          <div className="art-cards">
-            <i />
-            <i />
-            <i />
-          </div>
-          <div className="art-lines art-lines--short">
-            <i />
-            <i />
+          <div className="preview-minimal-bottom">
+            <div><i className="preview-minimal-heading" /><span /><span /><span /></div>
+            <div><i className="preview-minimal-heading" /><span /><span /></div>
           </div>
         </div>
-      </div>
+      )}
+      {kind === 'creative' && (
+        <div className="template-preview template-preview--creative">
+          <div className="preview-creative-nav"><i /><span /><span /><span /></div>
+          <div className="preview-creative-hero">
+            <div className="preview-creative-title"><i /><i /><span /></div>
+            <div className="preview-creative-shape preview-creative-shape--one" />
+            <div className="preview-creative-shape preview-creative-shape--two" />
+          </div>
+          <div className="preview-creative-label"><i /><span /></div>
+          <div className="preview-creative-projects">
+            <div /><div /><div />
+          </div>
+        </div>
+      )}
+      {kind === 'professional' && (
+        <div className="template-preview template-preview--professional">
+          <div className="preview-professional-header">
+            <div className="preview-professional-avatar" />
+            <div><i /><span /><span /></div>
+            <b />
+          </div>
+          <div className="preview-professional-body">
+            <div className="preview-professional-sidebar">
+              <i /><span /><span /><span />
+              <i /><span /><span />
+            </div>
+            <div className="preview-professional-main">
+              <i className="preview-professional-title" />
+              <span /><span /><span className="preview-professional-line-short" />
+              <i className="preview-professional-title" />
+              <div className="preview-professional-entry"><b /><span /><span /></div>
+              <div className="preview-professional-entry"><b /><span /><span /></div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
 function App() {
-  const [selectedTemplate, setSelectedTemplate] = useState('')
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [selectedTemplate, setSelectedTemplate] = useState(() => (
+    templates.some((template) => template.name === location.state?.selectedTemplate)
+      ? location.state.selectedTemplate
+      : ''
+  ))
   const [previewTemplate, setPreviewTemplate] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
   const [signedIn, setSignedIn] = useState(Boolean(authApi.getToken()))
-  const location = useLocation()
   const [authNotice, setAuthNotice] = useState(location.state?.authNotice ?? '')
 
   const closeMenu = () => setMenuOpen(false)
@@ -121,15 +145,21 @@ function App() {
     try {
       await authApi.logout()
       setSignedIn(false)
+      setSelectedTemplate('')
       setAuthNotice('You have been logged out.')
     } catch {
       setSignedIn(false)
+      setSelectedTemplate('')
       setAuthNotice('Your local session ended, but the server could not confirm logout. Please check your connection.')
     }
   }
 
+  function handleChooseTemplate(templateName) {
+    setSelectedTemplate((current) => current === templateName ? '' : templateName)
+  }
+
   return (
-    <div className="min-h-screen overflow-hidden bg-[#08090c] text-white">
+    <div className="min-h-screen overflow-x-clip bg-[#08090c] text-white">
       <header className="site-header">
         <a className="brand" href="#home" aria-label="Ptech home" onClick={closeMenu}>
           <img src="/assets/small-logo.png" alt="" />
@@ -166,7 +196,7 @@ function App() {
         {authNotice && (
           <p className="auth-success" role="status">{authNotice}</p>
         )}
-        <section id="home" className="hero-section">
+        <section id="home" className="hero-section" data-scroll-reveal>
           <div className="hero-copy">
             <p className="eyebrow">Your next chapter starts here</p>
             <h1>Make your work<br />impossible to ignore.</h1>
@@ -204,14 +234,14 @@ function App() {
           <div className="hero-scroll" aria-hidden="true"><span /> SCROLL TO EXPLORE</div>
         </section>
 
-        <section className="features-section" aria-labelledby="features-title">
+        <section className="features-section" aria-labelledby="features-title" data-scroll-reveal>
           <div className="section-heading">
             <p className="eyebrow">A portfolio that works for you</p>
             <h2 id="features-title">Everything you need.<br /><span>Nothing you don’t.</span></h2>
           </div>
           <div className="feature-grid">
             {features.map(({ icon: Icon, title, text }, index) => (
-              <article className="feature-card" key={title}>
+              <article className="feature-card" key={title} data-scroll-reveal>
                 <div className="feature-icon"><Icon size={20} strokeWidth={1.65} /></div>
                 <span className="feature-number">0{index + 1}</span>
                 <h3>{title}</h3>
@@ -221,7 +251,7 @@ function App() {
           </div>
         </section>
 
-        <section id="templates" className="templates-section" aria-labelledby="templates-title">
+        <section id="templates" className="templates-section" aria-labelledby="templates-title" data-scroll-reveal>
           <div className="templates-heading">
             <div>
               <p className="eyebrow">Find your point of view</p>
@@ -229,7 +259,7 @@ function App() {
             </div>
             <p>Start with a layout. Make it yours.</p>
           </div>
-          <div className="template-grid">
+          <div className="template-grid" role="group" aria-label="Choose one portfolio template">
             {templates.map((template) => {
               const isSelected = selectedTemplate === template.name
 
@@ -252,9 +282,10 @@ function App() {
                         type="button"
                         className="select-button"
                         aria-pressed={isSelected}
-                        onClick={() => setSelectedTemplate(template.name)}
+                        aria-label={`${isSelected ? 'Unselect' : 'Select'} ${template.name} template`}
+                        onClick={() => handleChooseTemplate(template.name)}
                       >
-                        {isSelected ? 'Selected' : 'Choose style'}
+                        {isSelected ? 'Unselect' : 'Choose style'}
                       </button>
                     </div>
                   </div>
@@ -262,10 +293,29 @@ function App() {
               )
             })}
           </div>
+          {selectedTemplate && (
+            <div className="template-continue" aria-live="polite">
+              <p>{selectedTemplate} is selected. Add your details and preview your portfolio.</p>
+              <button
+                type="button"
+                className="select-button"
+                onClick={() => navigate(
+                  selectedTemplate === 'Creative'
+                    ? '/create/creative'
+                    : selectedTemplate === 'Professional'
+                      ? '/create/professional'
+                      : '/create',
+                  { state: { template: selectedTemplate } },
+                )}
+              >
+                Build your portfolio
+              </button>
+            </div>
+          )}
         </section>
       </main>
 
-      <footer id="contact" className="site-footer">
+      <footer id="contact" className="site-footer" data-scroll-reveal>
         <div className="footer-main">
           <div className="footer-about">
             <p className="footer-label">A little about us</p>
@@ -276,8 +326,8 @@ function App() {
             <p>Thoughtful tools for your next chapter.</p>
           </div>
           <div className="footer-contact">
-            <p className="footer-label">Say hello</p>
-            <a href="mailto:hello@ptech.example">hello@ptech.example</a>
+            <p className="footer-label">Contact us</p>
+            <a href="mailto:chanzxs@gmail.com">chanzxs@gmail.com</a>
             <a href="#home">Back to the top ↑</a>
           </div>
         </div>

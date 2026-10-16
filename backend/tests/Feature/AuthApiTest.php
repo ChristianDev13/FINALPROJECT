@@ -11,7 +11,7 @@ class AuthApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_registration_creates_a_hashed_user_and_returns_a_token(): void
+    public function test_registration_creates_a_hashed_user_then_the_user_can_log_in(): void
     {
         $response = $this->postJson('/api/register', [
             'name' => 'Taylor Example',
@@ -22,10 +22,24 @@ class AuthApiTest extends TestCase
 
         $response->assertCreated()
             ->assertJsonPath('user.email', 'taylor@example.com')
-            ->assertJsonStructure(['user' => ['id', 'name', 'email'], 'token']);
+            ->assertJsonStructure(['user' => ['id', 'name', 'email']])
+            ->assertJsonMissingPath('token');
 
         $user = User::where('email', 'taylor@example.com')->firstOrFail();
         $this->assertTrue(Hash::check('correct-horse-battery', $user->password));
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'email' => 'taylor@example.com',
+        ]);
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+
+        $this->postJson('/api/login', [
+            'email' => 'TAYLOR@example.com',
+            'password' => 'correct-horse-battery',
+        ])->assertOk()
+            ->assertJsonPath('user.id', $user->id)
+            ->assertJsonStructure(['user', 'token']);
+
         $this->assertDatabaseCount('personal_access_tokens', 1);
     }
 
