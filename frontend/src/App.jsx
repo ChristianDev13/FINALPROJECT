@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   ArrowDown,
   BriefcaseBusiness,
@@ -12,8 +12,9 @@ import {
   WandSparkles,
   X,
 } from 'lucide-react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { authApi } from './api/auth.js'
+import { accountApi } from './api/account.js'
 
 const features = [
   {
@@ -141,6 +142,28 @@ function App() {
 
   const closeMenu = () => setMenuOpen(false)
 
+  useEffect(() => {
+    if (!authApi.getToken()) return
+
+    let active = true
+    Promise.all([authApi.getCurrentUser(), accountApi.getTemplateHistory()])
+      .then(([user, history]) => {
+        if (!active) return
+        setSignedIn(Boolean(user))
+        const currentTemplate = history.find((selection) => selection.is_current)
+        setSelectedTemplate(currentTemplate?.template_name ?? '')
+      })
+      .catch((error) => {
+        if (!active) return
+        if (error.status === 401) setSignedIn(false)
+        setAuthNotice(error.message)
+      })
+
+    return () => {
+      active = false
+    }
+  }, [])
+
   async function handleLogout() {
     try {
       await authApi.logout()
@@ -154,8 +177,19 @@ function App() {
     }
   }
 
-  function handleChooseTemplate(templateName) {
-    setSelectedTemplate((current) => current === templateName ? '' : templateName)
+  async function handleChooseTemplate(templateName, toggle = true) {
+    const nextTemplate = toggle && selectedTemplate === templateName ? '' : templateName
+    setSelectedTemplate(nextTemplate)
+
+    if (signedIn) {
+      try {
+        await accountApi.selectTemplate(nextTemplate ? nextTemplate.toLowerCase() : null)
+        setAuthNotice(nextTemplate ? `${nextTemplate} is now your selected template.` : 'Your current template selection was cleared.')
+      } catch (error) {
+        setSelectedTemplate(selectedTemplate)
+        setAuthNotice(error.message)
+      }
+    }
   }
 
   return (
@@ -180,7 +214,10 @@ function App() {
           <a href="#home" onClick={closeMenu}>Home</a>
           <a href="#templates" onClick={closeMenu}>Templates</a>
           {signedIn ? (
-            <button className="nav-button nav-button--dark" type="button" onClick={handleLogout}>Log out</button>
+            <>
+              <Link className="nav-button nav-button--dark" to="/account" onClick={closeMenu}>My Account</Link>
+              <button className="nav-button nav-button--dark" type="button" onClick={handleLogout}>Log out</button>
+            </>
           ) : (
             <>
               <a href="/login" onClick={closeMenu}>Login</a>
@@ -355,8 +392,8 @@ function App() {
             <button
               type="button"
               className="select-button"
-              onClick={() => {
-                setSelectedTemplate(previewTemplate)
+              onClick={async () => {
+              await handleChooseTemplate(previewTemplate, false)
                 setPreviewTemplate('')
               }}
             >

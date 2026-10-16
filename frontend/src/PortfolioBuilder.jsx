@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { ArrowLeft, Camera, Eye, Upload } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { accountApi } from './api/account.js'
+import { authApi } from './api/auth.js'
 import './PortfolioBuilder.css'
 
 const MINIMAL_PORTFOLIO_KEY = 'ptech_minimal_portfolio'
@@ -47,6 +49,7 @@ function PortfolioBuilder() {
   const [photo, setPhoto] = useState(draft.photo)
   const [photoError, setPhotoError] = useState('')
   const [saveError, setSaveError] = useState('')
+  const [saving, setSaving] = useState(false)
 
   function updateProfile(event) {
     const { name, value } = event.target
@@ -81,14 +84,27 @@ function PortfolioBuilder() {
     reader.readAsDataURL(file)
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
+    setSaveError('')
     try {
       sessionStorage.setItem(MINIMAL_PORTFOLIO_KEY, JSON.stringify({ ...profile, photo }))
-      navigate('/portfolio/minimal')
     } catch {
       setSaveError('Your portfolio could not be saved in this browser. Remove a large image or check available storage, then try again.')
+      return
     }
+
+    if (authApi.getToken()) {
+      setSaving(true)
+      try {
+        await accountApi.savePortfolio('minimal', { ...profile, photo })
+      } catch (error) {
+        setSaveError(`Your browser draft was saved, but your account portfolio could not be saved: ${error.message}`)
+        setSaving(false)
+        return
+      }
+    }
+    navigate('/portfolio/minimal')
   }
 
   return (
@@ -205,7 +221,7 @@ function PortfolioBuilder() {
           {saveError && <p className="builder-error builder-save-error" role="alert">{saveError}</p>}
           <div className="builder-publish-row">
             <p>Your details are saved in this browser tab and shown on a separate page.</p>
-            <button type="submit"><Eye size={16} /> View my portfolio</button>
+            <button type="submit" disabled={saving}><Eye size={16} /> {saving ? 'Saving…' : 'View my portfolio'}</button>
           </div>
         </form>
       </div>

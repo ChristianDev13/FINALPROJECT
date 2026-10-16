@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { ArrowLeft, ArrowUpRight, ImagePlus, Palette, Plus, Sparkles, Trash2 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { CREATIVE_PORTFOLIO_KEY, initialCreativePortfolio } from './creativePortfolioData.js'
+import { accountApi } from './api/account.js'
+import { authApi } from './api/auth.js'
 import './CreativePortfolio.css'
 
 function loadDraft() {
@@ -52,6 +54,7 @@ function CreativePortfolioBuilder() {
   const [draft] = useState(loadDraft)
   const [portfolio, setPortfolio] = useState(draft.portfolio)
   const [saveError, setSaveError] = useState(draft.error)
+  const [saving, setSaving] = useState(false)
   const [projectImageErrors, setProjectImageErrors] = useState({})
 
   function updateField(event) {
@@ -141,16 +144,28 @@ function CreativePortfolioBuilder() {
     }))
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
     setSaveError('')
 
     try {
       sessionStorage.setItem(CREATIVE_PORTFOLIO_KEY, JSON.stringify(portfolio))
-      navigate('/portfolio/creative')
     } catch {
       setSaveError('Your portfolio could not be saved in this browser. Check available storage and try again.')
+      return
     }
+
+    if (authApi.getToken()) {
+      setSaving(true)
+      try {
+        await accountApi.savePortfolio('creative', portfolio)
+      } catch (error) {
+        setSaveError(`Your browser draft was saved, but your account portfolio could not be saved: ${error.message}`)
+        setSaving(false)
+        return
+      }
+    }
+    navigate('/portfolio/creative')
   }
 
   return (
@@ -266,7 +281,7 @@ function CreativePortfolioBuilder() {
         {saveError && <p className="creative-save-error" role="alert">{saveError}</p>}
         <div className="creative-submit-row">
           <p>Your preview opens as its own portfolio page. You can come back and edit any time.</p>
-          <button type="submit">Create my portfolio <ArrowUpRight size={17} /></button>
+          <button type="submit" disabled={saving}>{saving ? 'Saving…' : 'Create my portfolio'} <ArrowUpRight size={17} /></button>
         </div>
       </form>
     </main>

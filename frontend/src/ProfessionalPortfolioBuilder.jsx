@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { ArrowLeft, ArrowUpRight, BriefcaseBusiness, FileText, Plus, Trash2, Upload } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { initialProfessionalPortfolio, PROFESSIONAL_PORTFOLIO_KEY } from './professionalPortfolioData.js'
+import { accountApi } from './api/account.js'
+import { authApi } from './api/auth.js'
 import './ProfessionalPortfolio.css'
 
 function loadDraft() {
@@ -47,6 +49,7 @@ function ProfessionalPortfolioBuilder() {
   const [draft] = useState(loadDraft)
   const [portfolio, setPortfolio] = useState(draft.portfolio)
   const [saveError, setSaveError] = useState(draft.error)
+  const [saving, setSaving] = useState(false)
   const [cvError, setCvError] = useState('')
 
   function updateField(event) {
@@ -111,15 +114,27 @@ function ProfessionalPortfolioBuilder() {
     reader.readAsDataURL(file)
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
     setSaveError('')
     try {
       sessionStorage.setItem(PROFESSIONAL_PORTFOLIO_KEY, JSON.stringify(portfolio))
-      navigate('/portfolio/professional')
     } catch {
       setSaveError('Your portfolio could not be saved in this browser. Check available storage and try again.')
+      return
     }
+
+    if (authApi.getToken()) {
+      setSaving(true)
+      try {
+        await accountApi.savePortfolio('professional', portfolio)
+      } catch (error) {
+        setSaveError(`Your browser draft was saved, but your account portfolio could not be saved: ${error.message}`)
+        setSaving(false)
+        return
+      }
+    }
+    navigate('/portfolio/professional')
   }
 
   return (
@@ -208,7 +223,7 @@ function ProfessionalPortfolioBuilder() {
         {saveError && <p className="professional-form-error professional-save-error" role="alert">{saveError}</p>}
         <div className="professional-submit-row">
           <p>Your information stays in this browser tab. Create your portfolio to preview the separate output page.</p>
-          <button type="submit">Create my portfolio <ArrowUpRight size={16} /></button>
+          <button type="submit" disabled={saving}>{saving ? 'Saving…' : 'Create my portfolio'} <ArrowUpRight size={16} /></button>
         </div>
       </form>
     </main>
