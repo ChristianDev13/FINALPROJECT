@@ -23,20 +23,40 @@ function ScrollReveal() {
       return undefined
     }
 
+    let previousScrollY = window.scrollY
+    let scrollDirection = 'down'
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+      document.querySelectorAll('[data-sticky-nav]').forEach((navigation) => {
+        navigation.classList.toggle('nav-scrolled', currentScrollY > 8)
+      })
+      if (currentScrollY !== previousScrollY) {
+        scrollDirection = currentScrollY < previousScrollY ? 'up' : 'down'
+        previousScrollY = currentScrollY
+      }
+    }
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
+          entry.target.setAttribute('data-scroll-direction', scrollDirection)
           entry.target.classList.add('scroll-revealed')
-          observer.unobserve(entry.target)
+        } else {
+          entry.target.classList.remove('scroll-revealed')
         }
       })
     }, {
-      threshold: 0.12,
-      rootMargin: '0px 0px -36px 0px',
+      threshold: 0.08,
+      rootMargin: '0px 0px -28px 0px',
     })
 
     elements.forEach((element) => observer.observe(element))
-    return () => observer.disconnect()
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('scroll', handleScroll)
+    }
   }, [pathname])
 
   return null

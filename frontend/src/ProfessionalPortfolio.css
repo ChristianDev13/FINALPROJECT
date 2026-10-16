@@ -40,6 +40,7 @@
 }
 
 .professional-builder-header {
+  --sticky-nav-surface: rgba(243, 245, 247, 0.72);
   background: #f3f5f7;
 }
 
@@ -338,6 +339,7 @@
 }
 
 .professional-portfolio-header {
+  --sticky-nav-surface: rgba(255, 255, 255, 0.72);
   padding: 0 clamp(20px, 6vw, 88px);
   background: #fff;
 }

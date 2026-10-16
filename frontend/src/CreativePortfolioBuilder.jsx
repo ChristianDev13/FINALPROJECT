@@ -155,7 +155,7 @@ function CreativePortfolioBuilder() {
 
   return (
     <main className="creative-builder-page">
-      <header className="creative-builder-header">
+      <header className="creative-builder-header" data-sticky-nav>
         <Link className="creative-back-link" to="/#templates"><ArrowLeft size={17} /> Templates</Link>
         <span><Palette size={15} /> Creative portfolio studio</span>
         <Link className="creative-view-link" to="/portfolio/creative">View portfolio <ArrowUpRight size={15} /></Link>

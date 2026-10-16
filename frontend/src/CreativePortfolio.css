@@ -9,6 +9,7 @@
 }
 
 .creative-builder-header {
+  --sticky-nav-surface: rgba(245, 242, 250, 0.72);
   position: sticky;
   top: 0;
   z-index: 30;
@@ -361,6 +362,7 @@
 }
 
 .creative-portfolio-nav {
+  --sticky-nav-surface: rgba(37, 24, 59, 0.7);
   position: sticky;
   z-index: 30;
   top: 0;

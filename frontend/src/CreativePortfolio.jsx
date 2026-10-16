@@ -55,7 +55,7 @@ function CreativePortfolio() {
 
   return (
     <main className="creative-portfolio-page">
-      <header className="creative-portfolio-nav">
+      <header className="creative-portfolio-nav" data-sticky-nav>
         <a className="creative-portfolio-wordmark" href="#top">{previewTitle}<span>®</span></a>
         <nav aria-label="Portfolio sections">
           <a href="#about">About</a>

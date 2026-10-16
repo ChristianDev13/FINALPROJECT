@@ -93,7 +93,7 @@ function PortfolioBuilder() {
 
   return (
     <main className="builder-page">
-      <header className="builder-header">
+      <header className="builder-header" data-sticky-nav>
         <Link className="builder-back" to="/#templates"><ArrowLeft size={17} /> Back to templates</Link>
         <span className="builder-template">{template} template</span>
       </header>
