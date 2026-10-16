@@ -38,10 +38,7 @@ Route::middleware('throttle:6,1')->group(function () {
             'password' => $validated['password'],
         ]);
 
-        return response()->json([
-            'user' => $user,
-            'token' => $user->createToken('frontend')->plainTextToken,
-        ], 201);
+        return response()->json(['user' => $user], 201);
     });
 
     Route::post('/login', function () {

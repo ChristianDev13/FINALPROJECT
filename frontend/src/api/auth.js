@@ -1,8 +1,19 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'
 const TOKEN_KEY = 'ptech_auth_token'
 
+async function fetchApi(url, options) {
+  try {
+    return await fetch(url, options)
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new Error(`Can't connect to the portfolio API at ${API_URL}. Start the Laravel API and make sure its database is available, then try again.`)
+    }
+    throw error
+  }
+}
+
 async function request(path, { token, ...options } = {}) {
-  const response = await fetch(`${API_URL}${path}`, {
+  const response = await fetchApi(`${API_URL}${path}`, {
     ...options,
     headers: {
       Accept: 'application/json',
@@ -24,7 +35,9 @@ async function request(path, { token, ...options } = {}) {
     const validationErrors = data.errors
       ? Object.values(data.errors).flat().join(' ')
       : null
-    throw new Error(validationErrors || data.message || 'Something went wrong. Please try again.')
+    const error = new Error(validationErrors || data.message || 'Something went wrong. Please try again.')
+    error.status = response.status
+    throw error
   }
 
   return data
@@ -36,7 +49,7 @@ export const authApi = {
       method: 'POST',
       body: JSON.stringify({ name, email, password, password_confirmation }),
     })
-    sessionStorage.setItem(TOKEN_KEY, data.token)
+    sessionStorage.removeItem(TOKEN_KEY)
     return data.user
   },
 
@@ -57,6 +70,19 @@ export const authApi = {
       }
     } finally {
       sessionStorage.removeItem(TOKEN_KEY)
+    }
+  },
+
+  async getCurrentUser() {
+    const token = sessionStorage.getItem(TOKEN_KEY)
+    if (!token) return null
+
+    try {
+      const data = await request('/user', { token })
+      return data.user
+    } catch (error) {
+      if (error.status === 401) sessionStorage.removeItem(TOKEN_KEY)
+      throw error
     }
   },
 

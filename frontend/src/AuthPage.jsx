@@ -44,11 +44,18 @@ function BrandPanel() {
 }
 
 function AuthPage() {
-  const isRegister = useLocation().pathname === '/register'
+  const location = useLocation()
+  const isRegister = location.pathname === '/register'
   const navigate = useNavigate()
-  const [form, setForm] = useState({ name: '', email: '', password: '', password_confirmation: '' })
+  const [form, setForm] = useState(() => ({
+    name: '',
+    email: location.state?.email ?? '',
+    password: '',
+    password_confirmation: '',
+  }))
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const registrationNotice = !isRegister ? location.state?.registrationNotice : ''
 
   function updateField(event) {
     setForm((current) => ({ ...current, [event.target.name]: event.target.value }))
@@ -61,13 +68,39 @@ function AuthPage() {
     setSubmitting(true)
 
     try {
-      const user = isRegister
-        ? await authApi.register(form)
-        : await authApi.login({ email: form.email, password: form.password })
+      if (isRegister) {
+        const user = await authApi.register(form)
+        setForm({
+          name: '',
+          email: user.email,
+          password: '',
+          password_confirmation: '',
+        })
+        navigate('/login', {
+          replace: true,
+          state: {
+            from: location.state?.from,
+            selectedTemplate: location.state?.selectedTemplate,
+            template: location.state?.template,
+            email: user.email,
+            registrationNotice: `Account created for ${user.email}. Please log in.`,
+          },
+        })
+        return
+      }
 
-      navigate('/', {
+      const user = await authApi.login({ email: form.email, password: form.password })
+      const returnTo = location.state?.from ?? '/'
+      const returnState = returnTo === '/create'
+        ? { template: location.state?.template }
+        : {
+            selectedTemplate: location.state?.selectedTemplate,
+            authNotice: `Welcome back, ${user.name}!`,
+          }
+
+      navigate(returnTo, {
         replace: true,
-        state: { authNotice: `Welcome${isRegister ? '' : ' back'}, ${user.name}!` },
+        state: returnState,
       })
     } catch (requestError) {
       setError(requestError.message)
@@ -85,6 +118,7 @@ function AuthPage() {
             <img src="/assets/small-logo.png" alt="" />
           </Link>
           <h1>{isRegister ? 'Register to your account' : 'Login to your account'}</h1>
+          {registrationNotice && <p className="auth-success" role="status">{registrationNotice}</p>}
 
           <form className="auth-form" onSubmit={handleSubmit}>
             {isRegister && (
@@ -142,7 +176,7 @@ function AuthPage() {
 
           <p className="auth-switch">
             {isRegister ? 'Already have an account?' : "Don’t have an account?"}{' '}
-            <Link to={isRegister ? '/login' : '/register'}>{isRegister ? 'Login' : 'Register'}</Link>
+            <Link to={isRegister ? '/login' : '/register'} state={location.state}>{isRegister ? 'Login' : 'Register'}</Link>
           </p>
         </div>
         <BrandPanel />
