@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
+import AccountPage from './AccountPage.jsx'
 import AuthPage from './AuthPage.jsx'
 import PortfolioBuilder from './PortfolioBuilder.jsx'
 import CreativePortfolioBuilder from './CreativePortfolioBuilder.jsx'
@@ -20,6 +21,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/" element={<App />} />
         <Route path="/login" element={<AuthPage />} />
         <Route path="/register" element={<AuthPage />} />
+        <Route path="/account" element={<AccountPage />} />
         <Route path="/create/creative" element={<CreativePortfolioBuilder />} />
         <Route path="/portfolio/creative" element={<CreativePortfolio />} />
         <Route path="/create" element={<PortfolioBuilder />} />

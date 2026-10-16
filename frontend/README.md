@@ -23,11 +23,10 @@ entries as needed without fixed project numbers.
 The Professional template has a dedicated editor at `/create/professional` and
 a standalone output page at `/portfolio/professional`, with career summary,
 work experience, skills, education, certifications, achievements, contact
-details, and an optional PDF CV download. Minimal, Creative, and Professional
-portfolio data are saved in the current browser tab.
-Template selection and builders work without an account; login and
-registration remain available as separate pages while backend account
-features are being developed.
+details, and an optional PDF CV download. Portfolio data is saved in the
+current browser tab for every visitor. When signed in, selected templates,
+account details, preferences, and saved portfolio designs are also persisted
+to the Laravel database.
 
 Authentication pages are available at `/login` and `/register`. Set
 `VITE_API_URL` in `.env` if Laravel is not running at
@@ -37,3 +36,9 @@ Then run `php artisan migrate` and `php artisan serve --host 127.0.0.1 --port
 8000` from the `backend` folder. Keep PostgreSQL and Laravel running alongside
 Vite to register and sign in. Registration stores the account, then sends the
 user to login; it does not sign them in automatically.
+
+After signing in, the landing page navigation links to **My Account** at
+`/account`. The account area includes profile details, password and privacy
+settings, template selection history, and saved portfolio management. Template
+history and portfolio data belong to the authenticated user and are stored by
+the Laravel API.

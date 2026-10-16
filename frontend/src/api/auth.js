@@ -12,7 +12,7 @@ async function fetchApi(url, options) {
   }
 }
 
-async function request(path, { token, ...options } = {}) {
+export async function apiRequest(path, { token, ...options } = {}) {
   const response = await fetchApi(`${API_URL}${path}`, {
     ...options,
     headers: {
@@ -45,7 +45,7 @@ async function request(path, { token, ...options } = {}) {
 
 export const authApi = {
   async register({ name, email, password, password_confirmation }) {
-    const data = await request('/register', {
+    const data = await apiRequest('/register', {
       method: 'POST',
       body: JSON.stringify({ name, email, password, password_confirmation }),
     })
@@ -54,7 +54,7 @@ export const authApi = {
   },
 
   async login({ email, password }) {
-    const data = await request('/login', {
+    const data = await apiRequest('/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     })
@@ -66,7 +66,7 @@ export const authApi = {
     const token = sessionStorage.getItem(TOKEN_KEY)
     try {
       if (token) {
-        await request('/logout', { method: 'POST', token })
+        await apiRequest('/logout', { method: 'POST', token })
       }
     } finally {
       sessionStorage.removeItem(TOKEN_KEY)
@@ -78,7 +78,7 @@ export const authApi = {
     if (!token) return null
 
     try {
-      const data = await request('/user', { token })
+      const data = await apiRequest('/user', { token })
       return data.user
     } catch (error) {
       if (error.status === 401) sessionStorage.removeItem(TOKEN_KEY)
