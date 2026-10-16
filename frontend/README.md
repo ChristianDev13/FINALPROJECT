@@ -30,12 +30,10 @@ to the Laravel database.
 
 Authentication pages are available at `/login` and `/register`. Set
 `VITE_API_URL` in `.env` if Laravel is not running at
-`http://127.0.0.1:8000/api`. To start the local PostgreSQL database, run
-`docker compose --env-file ..\backend\.env up -d` from the `database` folder.
-Then run `php artisan migrate` and `php artisan serve --host 127.0.0.1 --port
-8000` from the `backend` folder. Keep PostgreSQL and Laravel running alongside
-Vite to register and sign in. Registration stores the account, then sends the
-user to login; it does not sign them in automatically.
+`http://127.0.0.1:8000/api`. To start the frontend, API, and PostgreSQL together
+from the repository root, run
+`docker compose -f database/compose.yaml up --build`. Registration stores the
+account, then sends the user to login; it does not sign them in automatically.
 
 After signing in, the landing page navigation links to **My Account** at
 `/account`. The account area includes profile details, password and privacy

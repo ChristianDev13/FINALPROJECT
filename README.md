@@ -16,29 +16,27 @@ database/                 PostgreSQL setup and schema reference
   schema.sql               Portfolio schema reference
 ```
 
-## Start the database
+## Start everything with Docker
 
-Create `backend/.env` from `backend/.env.example`, set a local PostgreSQL
-password, then start PostgreSQL:
+From the repository root, run:
 
 ```sh
-docker compose --env-file backend/.env -f database/compose.yaml up -d
+docker compose -f database/compose.yaml up --build
 ```
 
-The PHP runtime must have the `pdo_pgsql` extension enabled. From `backend/`,
-run `php artisan migrate` and `php artisan serve`. Registration, login, and
-portfolio templates use the configured PostgreSQL database. The frontend uses
-Laravel Sanctum bearer tokens; tokens are kept in the current browser tab and
-expire after seven days. Passwords are hashed by Laravel before storage.
+This starts PostgreSQL, runs the Laravel migrations, and starts the Laravel API
+and Vite frontend. Open `http://localhost:5173`; the API health endpoint is
+`http://localhost:8000/api/health`. Database data and Laravel storage persist in
+Docker volumes. The local development database password defaults to
+`change-me`; set `DB_PASSWORD` in the shell or Compose `.env` file to override
+it. Press Ctrl+C to stop the services, or run
+`docker compose -f database/compose.yaml down` from the repository root.
 
-## Start the frontend
+The frontend uses Laravel Sanctum bearer tokens; tokens are kept in the current
+browser tab and expire after seven days. Passwords are hashed by Laravel before
+storage. For manual development outside Docker, configure `backend/.env`, run
+the database service, then run Laravel and Vite separately as described in
+their project READMEs.
 
-From `frontend/`, copy `.env.example` to `.env` if the API is not at its default
-URL, then run `npm install` and `npm run dev`. Open `http://localhost:5173` and
-use the **Login** or **Register** navigation links. Create a production bundle
-with `npm run build`.
-
-Run Laravel and Vite in separate terminals. The Laravel API runs at
-`http://127.0.0.1:8000`; the health endpoint is
-`http://127.0.0.1:8000/api/health`. For a deployed frontend, add its origin to
-`backend/config/cors.php` before deployment.
+For a deployed frontend, add its origin to `backend/config/cors.php` before
+deployment.
