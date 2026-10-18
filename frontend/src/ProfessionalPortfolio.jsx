@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowDownToLine, ArrowUpRight, Award, BriefcaseBusiness, GraduationCap, Mail, MapPin, Phone } from 'lucide-react'
+import { ArrowUpRight, Award, BriefcaseBusiness, GraduationCap, Mail, MapPin, Phone } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { PROFESSIONAL_PORTFOLIO_KEY, splitProfessionalItems } from './professionalPortfolioData.js'
 import './ProfessionalPortfolio.css'
@@ -87,15 +87,6 @@ function ProfessionalPortfolio() {
             <p className="professional-profile-title">{portfolio.title || 'Your professional title'}</p>
             {portfolio.location && <p className="professional-profile-location"><MapPin size={15} />{portfolio.location}</p>}
           </div>
-          {portfolio.cv ? (
-            <a className="professional-download-button" href={portfolio.cv} download={portfolio.cvName || 'professional-cv.pdf'}>
-              <ArrowDownToLine size={17} /> Download CV
-            </a>
-          ) : (
-            <button className="professional-download-button professional-download-button--disabled" type="button" disabled title="Upload a PDF CV in the editor to enable download">
-              <ArrowDownToLine size={17} /> Download CV
-            </button>
-          )}
         </section>
 
         <div className="professional-output-columns">

@@ -14,8 +14,6 @@ export const initialProfessionalPortfolio = {
   education: '',
   certifications: '',
   achievements: '',
-  cv: '',
-  cvName: '',
 }
 
 export function splitProfessionalItems(value = '') {

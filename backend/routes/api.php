@@ -101,6 +101,7 @@ Route::middleware('throttle:6,1')->group(function () {
                 $user->forceFill([
                     'password' => $password,
                     'remember_token' => Str::random(60),
+                    'password_changed_at' => now(),
                 ])->save();
 
                 $user->tokens()->delete();
@@ -156,6 +157,7 @@ Route::middleware('auth:sanctum')->group(function () {
         }
 
         $user->password = $validated['password'];
+        $user->password_changed_at = now();
         $user->save();
 
         return response()->json(['message' => 'Password updated successfully.']);

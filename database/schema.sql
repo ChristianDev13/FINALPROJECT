@@ -1,6 +1,10 @@
 -- Application schema reference.
 -- Laravel's default users migration must run before these tables are created.
 
+-- Track when a user's password was last changed; never store a recoverable password.
+ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS password_changed_at TIMESTAMP(0) WITHOUT TIME ZONE;
+
 CREATE TABLE templates (
     slug VARCHAR(255) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,

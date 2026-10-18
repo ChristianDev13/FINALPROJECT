@@ -126,8 +126,28 @@ class AuthApiTest extends TestCase
             ]);
 
         $this->assertTrue(Hash::check('new-password-value', $user->fresh()->password));
+        $this->assertNotNull($user->fresh()->password_changed_at);
         $this->assertDatabaseMissing('password_reset_tokens', ['email' => 'taylor@example.com']);
         $this->assertDatabaseCount('personal_access_tokens', 0);
+    }
+
+    public function test_authenticated_user_can_change_password_and_records_change_time(): void
+    {
+        $user = User::factory()->create([
+            'password' => 'old-password-value',
+            'password_changed_at' => null,
+        ]);
+        $token = $user->createToken('frontend')->plainTextToken;
+
+        $this->withToken($token)->putJson('/api/account/password', [
+            'current_password' => 'old-password-value',
+            'password' => 'new-password-value',
+            'password_confirmation' => 'new-password-value',
+        ])->assertOk();
+
+        $user->refresh();
+        $this->assertTrue(Hash::check('new-password-value', $user->password));
+        $this->assertNotNull($user->password_changed_at);
     }
 
     public function test_password_reset_request_does_not_reveal_unknown_email_addresses(): void

@@ -7,6 +7,7 @@ import {
   CircleUserRound,
   Clock3,
   Eye,
+  EyeOff,
   FileText,
   LayoutDashboard,
   LockKeyhole,
@@ -70,6 +71,11 @@ function AccountPage() {
     current_password: '',
     password: '',
     password_confirmation: '',
+  })
+  const [visiblePasswords, setVisiblePasswords] = useState({
+    current_password: false,
+    password: false,
+    password_confirmation: false,
   })
 
   useEffect(() => {
@@ -202,6 +208,7 @@ function AccountPage() {
     try {
       await accountApi.updatePassword(passwordForm)
       setPasswordForm({ current_password: '', password: '', password_confirmation: '' })
+      setVisiblePasswords({ current_password: false, password: false, password_confirmation: false })
       setNotice('Your password has been updated.')
     } catch (requestError) {
       setError(requestError.message)
@@ -408,9 +415,36 @@ function AccountPage() {
         <section className="account-panel account-settings-panel">
           <div className="account-panel-heading"><div><p className="account-eyebrow">SECURITY</p><h2>Change password</h2></div><LockKeyhole size={20} /></div>
           <form className="account-form" onSubmit={updatePassword}>
-            <label><span>Current password</span><input required type="password" autoComplete="current-password" maxLength="255" value={passwordForm.current_password} onChange={(event) => setPasswordForm({ ...passwordForm, current_password: event.target.value })} /></label>
-            <label><span>New password</span><input required type="password" autoComplete="new-password" minLength="8" maxLength="255" value={passwordForm.password} onChange={(event) => setPasswordForm({ ...passwordForm, password: event.target.value })} /></label>
-            <label><span>Confirm new password</span><input required type="password" autoComplete="new-password" minLength="8" maxLength="255" value={passwordForm.password_confirmation} onChange={(event) => setPasswordForm({ ...passwordForm, password_confirmation: event.target.value })} /></label>
+            {[
+              { field: 'current_password', label: 'Current password', autoComplete: 'current-password' },
+              { field: 'password', label: 'New password', autoComplete: 'new-password' },
+              { field: 'password_confirmation', label: 'Confirm new password', autoComplete: 'new-password' },
+            ].map(({ field, label, autoComplete }) => (
+              <label key={field} htmlFor={`account-${field}`}>
+                <span>{label}</span>
+                <div className="account-password-input">
+                  <input
+                    id={`account-${field}`}
+                    required
+                    type={visiblePasswords[field] ? 'text' : 'password'}
+                    autoComplete={autoComplete}
+                    minLength={field === 'current_password' ? undefined : 8}
+                    maxLength="255"
+                    value={passwordForm[field]}
+                    onChange={(event) => setPasswordForm({ ...passwordForm, [field]: event.target.value })}
+                  />
+                  <button
+                    className="account-password-toggle"
+                    type="button"
+                    aria-label={`${visiblePasswords[field] ? 'Hide' : 'Show'} ${label.toLowerCase()}`}
+                    aria-pressed={visiblePasswords[field]}
+                    onClick={() => setVisiblePasswords((current) => ({ ...current, [field]: !current[field] }))}
+                  >
+                    {visiblePasswords[field] ? <EyeOff size={17} /> : <Eye size={17} />}
+                  </button>
+                </div>
+              </label>
+            ))}
             <div className="account-form-actions"><p>Use at least 8 characters.</p><button className="account-primary-button" disabled={saving}>{saving ? 'Saving…' : 'Update password'}</button></div>
           </form>
         </section>

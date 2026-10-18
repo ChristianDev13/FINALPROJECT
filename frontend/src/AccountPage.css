@@ -446,6 +446,38 @@
   border-color: #f26a38;
 }
 
+.account-password-input {
+  position: relative;
+}
+
+.account-password-input input {
+  padding-right: 42px;
+}
+
+.account-password-toggle {
+  position: absolute;
+  top: 0;
+  right: 2px;
+  display: grid;
+  width: 38px;
+  height: 100%;
+  place-items: center;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: #a3a4aa;
+  cursor: pointer;
+}
+
+.account-password-toggle:hover {
+  color: #f28a62;
+}
+
+.account-password-toggle:focus-visible {
+  outline: 2px solid #f26a38;
+  outline-offset: -3px;
+}
+
 .account-form-actions {
   display: flex;
   grid-column: 1 / -1;

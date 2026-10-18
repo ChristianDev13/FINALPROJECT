@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, ArrowUpRight, BriefcaseBusiness, FileText, Plus, Trash2, Upload } from 'lucide-react'
+import { ArrowLeft, ArrowUpRight, BriefcaseBusiness, Plus, Trash2 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { initialProfessionalPortfolio, PROFESSIONAL_PORTFOLIO_KEY } from './professionalPortfolioData.js'
 import { accountApi } from './api/account.js'
@@ -50,7 +50,6 @@ function ProfessionalPortfolioBuilder() {
   const [portfolio, setPortfolio] = useState(draft.portfolio)
   const [saveError, setSaveError] = useState(draft.error)
   const [saving, setSaving] = useState(false)
-  const [cvError, setCvError] = useState('')
 
   function updateField(event) {
     const { name, value } = event.target
@@ -78,40 +77,6 @@ function ProfessionalPortfolioBuilder() {
       ...current,
       experience: current.experience.filter((_, entryIndex) => entryIndex !== index),
     }))
-  }
-
-  function handleCvChange(event) {
-    const file = event.target.files?.[0]
-    if (!file) return
-
-    const extension = file.name.split('.').pop()?.toLowerCase()
-    if (file.type !== 'application/pdf' || extension !== 'pdf') {
-      setCvError('Choose a PDF file for your CV.')
-      event.target.value = ''
-      return
-    }
-    if (file.size > 2 * 1024 * 1024) {
-      setCvError('Choose a PDF smaller than 2 MB so it can be saved in this browser.')
-      event.target.value = ''
-      return
-    }
-
-    const input = event.currentTarget
-    const reader = new FileReader()
-    reader.onload = () => {
-      if (typeof reader.result !== 'string') {
-        setCvError('This PDF could not be loaded. Please choose another file.')
-        input.value = ''
-        return
-      }
-      setPortfolio((current) => ({ ...current, cv: reader.result, cvName: file.name }))
-      setCvError('')
-    }
-    reader.onerror = () => {
-      setCvError('This PDF could not be read. Please choose another file.')
-      input.value = ''
-    }
-    reader.readAsDataURL(file)
   }
 
   async function handleSubmit(event) {
@@ -208,16 +173,6 @@ function ProfessionalPortfolioBuilder() {
         <section className="professional-input-section" data-scroll-reveal>
           <div className="professional-input-heading"><span>06</span><div><h2>Achievements</h2><p>Share awards, milestones, and notable results.</p></div></div>
           <label className="professional-field"><span>Achievements <small>One achievement per line.</small></span><textarea name="achievements" value={portfolio.achievements} onChange={updateField} rows="4" placeholder={'e.g. Led platform migration, reducing deployment time by 40%'} /></label>
-        </section>
-
-        <section className="professional-input-section" data-scroll-reveal>
-          <div className="professional-input-heading"><span>07</span><div><h2>Downloadable CV</h2><p>Upload a PDF so visitors can download your CV from the portfolio.</p></div></div>
-          <label className="professional-cv-upload">
-            <input type="file" accept=".pdf,application/pdf" onChange={handleCvChange} />
-            {portfolio.cv ? <FileText size={18} /> : <Upload size={18} />}
-            <span>{portfolio.cvName || 'Choose CV PDF'}<small>PDF only · up to 2 MB</small></span>
-          </label>
-          {cvError && <p className="professional-form-error" role="alert">{cvError}</p>}
         </section>
 
         {saveError && <p className="professional-form-error professional-save-error" role="alert">{saveError}</p>}

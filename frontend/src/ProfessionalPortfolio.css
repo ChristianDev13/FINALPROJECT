@@ -242,44 +242,6 @@
   background: #f4efdf;
 }
 
-.professional-cv-upload {
-  display: flex;
-  min-height: 65px;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border: 1px dashed #c2cad3;
-  border-radius: 5px;
-  background: #fbfcfd;
-  color: #31445e;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 650;
-}
-
-.professional-cv-upload:focus-within {
-  outline: 2px solid #7b8da6;
-  outline-offset: 2px;
-}
-
-.professional-cv-upload input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-.professional-cv-upload small {
-  display: block;
-  margin-top: 4px;
-  color: #8390a0;
-  font-size: 10px;
-  font-weight: 400;
-}
-
 .professional-form-error {
   margin: 12px 0 0;
   color: #a23b32;
@@ -307,8 +269,7 @@
   line-height: 1.6;
 }
 
-.professional-submit-row button,
-.professional-download-button {
+.professional-submit-row button {
   display: inline-flex;
   min-height: 42px;
   flex: 0 0 auto;
@@ -328,8 +289,7 @@
   transition: background 150ms ease, border-color 150ms ease;
 }
 
-.professional-submit-row button:hover,
-.professional-download-button:hover {
+.professional-submit-row button:hover {
   border-color: #233e62;
   background: #233e62;
 }
@@ -414,22 +374,6 @@
   margin: 12px 0 0;
   color: #75808d;
   font-size: 12px;
-}
-
-.professional-download-button--disabled {
-  border-color: #aab3bf;
-  background: #aab3bf;
-  cursor: not-allowed;
-}
-
-.professional-download-button:disabled {
-  color: #fff;
-  opacity: 1;
-}
-
-.professional-download-button--disabled:hover {
-  border-color: #aab3bf;
-  background: #aab3bf;
 }
 
 .professional-output-columns {
@@ -791,8 +735,7 @@
     flex-direction: column;
   }
 
-  .professional-submit-row button,
-  .professional-download-button {
+  .professional-submit-row button {
     align-self: flex-start;
   }
 
