@@ -1333,6 +1333,17 @@ a:focus-visible {
   text-align: left;
 }
 
+.auth-forgot-link {
+  align-self: flex-end;
+  margin-top: -8px;
+  color: #62c2ff;
+  font-size: 12px;
+}
+
+.auth-forgot-link:hover {
+  text-decoration: underline;
+}
+
 .auth-submit {
   width: min(100%, 270px);
   min-height: 44px;

@@ -155,7 +155,9 @@ function App() {
       })
       .catch((error) => {
         if (!active) return
-        if (error.status === 401) setSignedIn(false)
+        if (error.status === 401) {
+          setSignedIn(false)
+        }
         setAuthNotice(error.message)
       })
 
@@ -220,8 +222,8 @@ function App() {
             </>
           ) : (
             <>
-              <a href="/login" onClick={closeMenu}>Login</a>
-              <a className="nav-button nav-button--dark" href="/register" onClick={closeMenu}>Register</a>
+              <Link className="nav-button nav-button--dark" to="/login" onClick={closeMenu}>Login</Link>
+              <Link className="nav-button nav-button--dark" to="/register" onClick={closeMenu}>Register</Link>
             </>
           )}
           <a className="nav-button nav-button--light" href="#templates" onClick={closeMenu}>Get started</a>

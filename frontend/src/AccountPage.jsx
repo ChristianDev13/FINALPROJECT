@@ -137,14 +137,27 @@ function AccountPage() {
     }
   }
 
-  async function selectTemplate(slug) {
+  async function selectTemplate(slug, continueToBuilder = false) {
     setError('')
     setNotice('')
     setSaving(true)
     try {
       const updatedHistory = await accountApi.selectTemplate(slug)
       setHistory(updatedHistory)
-      setNotice(`${templates.find((template) => template.slug === slug)?.name} is now your current template.`)
+      if (slug && continueToBuilder) {
+        const savedPortfolio = portfolios.find((portfolio) => portfolio.template_slug === slug)
+        if (savedPortfolio) {
+          openPortfolio(savedPortfolio, 'create')
+        } else {
+          navigate(templatePath(slug), {
+            state: { template: templates.find((template) => template.slug === slug)?.name },
+          })
+        }
+      } else {
+        setNotice(slug
+          ? `${templates.find((template) => template.slug === slug)?.name} is now your current template.`
+          : 'Your current template selection has been cleared.')
+      }
     } catch (requestError) {
       setError(requestError.message)
     } finally {
@@ -309,9 +322,24 @@ function AccountPage() {
                   <div className="account-template-details">
                     <div><h2>{template.name}</h2>{isCurrent && <span className="account-current-badge"><Check size={12} /> Current</span>}</div>
                     <p>{template.detail}</p>
-                    <button className="account-primary-button" type="button" disabled={saving || isCurrent} onClick={() => selectTemplate(template.slug)}>
-                      {isCurrent ? 'Currently selected' : 'Select template'}
+                    <button
+                      className="account-primary-button"
+                      type="button"
+                      disabled={saving}
+                      onClick={() => selectTemplate(template.slug, !isCurrent)}
+                    >
+                      {isCurrent ? 'Continue editing' : 'Select template'}
                     </button>
+                    {isCurrent && (
+                      <button
+                        className="account-template-clear-button"
+                        type="button"
+                        disabled={saving}
+                        onClick={() => selectTemplate(null)}
+                      >
+                        Unselect template
+                      </button>
+                    )}
                   </div>
                 </article>
               )
@@ -434,7 +462,14 @@ function AccountPage() {
             <h2 id="account-preview-title">{preview.name ?? preview.template_name}</h2>
             <TemplateMockup slug={preview.slug ?? preview.template_slug} large />
             <p>{templates.find((template) => template.slug === (preview.slug ?? preview.template_slug))?.detail}</p>
-            <button className="account-primary-button" type="button" disabled={saving} onClick={() => { selectTemplate(preview.slug ?? preview.template_slug); setPreview(null) }}>Select this template</button>
+            <button
+              className="account-primary-button"
+              type="button"
+              disabled={saving}
+              onClick={() => selectTemplate(preview.slug ?? preview.template_slug, true)}
+            >
+              Select and continue
+            </button>
           </section>
         </div>
       )}

@@ -43,20 +43,26 @@ function BrandPanel() {
   )
 }
 
-function AuthPage() {
+function AuthPage({ mode }) {
   const location = useLocation()
-  const isRegister = location.pathname === '/register'
+  const isRegister = mode === 'register'
+  const isForgot = mode === 'forgot'
+  const isReset = mode === 'reset'
   const navigate = useNavigate()
+  const query = new URLSearchParams(location.search)
   const [menuOpen, setMenuOpen] = useState(false)
   const [form, setForm] = useState(() => ({
     name: '',
-    email: location.state?.email ?? '',
+    email: location.state?.email ?? query.get('email') ?? '',
     password: '',
     password_confirmation: '',
   }))
   const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const registrationNotice = !isRegister ? location.state?.registrationNotice : ''
+  const loginNotice = !isRegister && !isForgot && !isReset
+    ? location.state?.registrationNotice ?? location.state?.resetNotice
+    : ''
   const closeMenu = () => setMenuOpen(false)
 
   function updateField(event) {
@@ -86,6 +92,30 @@ function AuthPage() {
             template: location.state?.template,
             email: user.email,
             registrationNotice: `Account created for ${user.email}. Please log in.`,
+          },
+        })
+        return
+      }
+
+      if (isForgot) {
+        const message = await authApi.requestPasswordReset(form.email)
+        setNotice(message)
+        return
+      }
+
+      if (isReset) {
+        const token = query.get('token')
+        if (!token) {
+          setError('This password reset link is invalid or expired. Request a new one and try again.')
+          return
+        }
+
+        const message = await authApi.resetPassword({ ...form, token })
+        navigate('/login', {
+          replace: true,
+          state: {
+            email: form.email,
+            resetNotice: message,
           },
         })
         return
@@ -134,9 +164,9 @@ function AuthPage() {
           <Link to="/#home" onClick={closeMenu}>Home</Link>
           <Link to="/#templates" onClick={closeMenu}>Templates</Link>
           <Link
-            className={`nav-button nav-button--dark${!isRegister ? ' auth-nav-current' : ''}`}
+            className={`nav-button nav-button--dark${!isRegister && !isForgot && !isReset ? ' auth-nav-current' : ''}`}
             to="/login"
-            aria-current={!isRegister ? 'page' : undefined}
+            aria-current={!isRegister && !isForgot && !isReset ? 'page' : undefined}
             onClick={closeMenu}
           >
             Login
@@ -153,13 +183,20 @@ function AuthPage() {
           <Link to="/#contact" onClick={closeMenu}>Contact</Link>
         </nav>
       </header>
-      <section className="auth-card" aria-label={isRegister ? 'Create an account' : 'Sign in'}>
+      <section className="auth-card" aria-label={isRegister ? 'Create an account' : isForgot ? 'Request a password reset' : isReset ? 'Set a new password' : 'Sign in'}>
         <div className="auth-form-panel">
           <Link className="auth-mark" to="/" aria-label="Ptech home">
             <img src="/assets/small-logo.png" alt="" />
           </Link>
-          <h1>{isRegister ? 'Register to your account' : 'Login to your account'}</h1>
-          {registrationNotice && <p className="auth-success" role="status">{registrationNotice}</p>}
+          <h1>{isRegister
+            ? 'Register to your account'
+            : isForgot
+              ? 'Forgot your password?'
+              : isReset
+                ? 'Create a new password'
+                : 'Login to your account'}</h1>
+          {loginNotice && <p className="auth-success" role="status">{loginNotice}</p>}
+          {notice && <p className="auth-success" role="status">{notice}</p>}
 
           <form className="auth-form" onSubmit={handleSubmit}>
             {isRegister && (
@@ -178,7 +215,7 @@ function AuthPage() {
                 />
               </div>
             )}
-            <div className="auth-field">
+            {!isReset && <div className="auth-field">
               <label className="sr-only" htmlFor="email">Email</label>
               <input
                 id="email"
@@ -191,15 +228,22 @@ function AuthPage() {
                 maxLength={255}
                 required
               />
-            </div>
-            <PasswordField
-              id="password"
-              label="Password"
-              value={form.password}
-              onChange={updateField}
-              autoComplete={isRegister ? 'new-password' : 'current-password'}
-            />
-            {isRegister && (
+            </div>}
+            {!isRegister && !isForgot && !isReset && (
+              <Link className="auth-forgot-link" to="/forgot-password" state={{ email: form.email }}>
+                Forgot password?
+              </Link>
+            )}
+            {!isForgot && (
+              <PasswordField
+                id="password"
+                label={isReset ? 'New password' : 'Password'}
+                value={form.password}
+                onChange={updateField}
+                autoComplete={isRegister || isReset ? 'new-password' : 'current-password'}
+              />
+            )}
+            {(isRegister || isReset) && (
               <PasswordField
                 id="password_confirmation"
                 label="Confirm password"
@@ -208,16 +252,30 @@ function AuthPage() {
                 autoComplete="new-password"
               />
             )}
-            {isRegister && <p className="password-hint">Use at least 8 characters.</p>}
+            {(isRegister || isReset) && <p className="password-hint">Use at least 8 characters.</p>}
             {error && <p className="auth-error" role="alert">{error}</p>}
             <button className={`auth-submit${isRegister ? ' auth-submit--register' : ''}`} type="submit" disabled={submitting}>
-              {submitting ? 'Please wait…' : isRegister ? 'Register' : 'Login'}
+              {submitting
+                ? 'Please wait…'
+                : isRegister
+                  ? 'Register'
+                  : isForgot
+                    ? 'Send reset link'
+                    : isReset
+                      ? 'Reset password'
+                      : 'Login'}
             </button>
           </form>
 
           <p className="auth-switch">
-            {isRegister ? 'Already have an account?' : "Don’t have an account?"}{' '}
-            <Link to={isRegister ? '/login' : '/register'} state={location.state}>{isRegister ? 'Login' : 'Register'}</Link>
+            {isRegister
+              ? 'Already have an account?'
+              : isForgot || isReset
+                ? 'Remember your password?'
+                : "Don’t have an account?"}{' '}
+            <Link to={isRegister || isForgot || isReset ? '/login' : '/register'} state={location.state}>
+              {isRegister || isForgot || isReset ? 'Login' : 'Register'}
+            </Link>
           </p>
         </div>
         <BrandPanel />

@@ -30,12 +30,28 @@ to the Laravel database.
 
 Authentication pages are available at `/login` and `/register`. Set
 `VITE_API_URL` in `.env` if Laravel is not running at
-`http://127.0.0.1:8000/api`. To start the local PostgreSQL database, run
-`docker compose --env-file ..\backend\.env up -d` from the `database` folder.
-Then run `php artisan migrate` and `php artisan serve --host 127.0.0.1 --port
-8000` from the `backend` folder. Keep PostgreSQL and Laravel running alongside
-Vite to register and sign in. Registration stores the account, then sends the
-user to login; it does not sign them in automatically.
+`http://127.0.0.1:8000/api`. For local development, the backend uses its SQLite
+database by default, so no PostgreSQL server or PHP PostgreSQL extension is
+required. From `backend/`, run `php artisan migrate` and
+`php artisan serve --host 127.0.0.1 --port 8000`; run `npm run dev` from
+`frontend/` in another terminal. Keep both servers running to register and sign
+in. Registration stores the account, then sends the user to login with their
+email prefilled; submit the password there to sign in.
+
+Forgot-password emails use Laravel's expiring, single-use reset tokens. To send
+them through Gmail, set `MAIL_MAILER=smtp`, `MAIL_SCHEME=smtp`,
+`MAIL_HOST=smtp.gmail.com`, and `MAIL_PORT=587` in `backend/.env`. Set
+`MAIL_USERNAME` and `MAIL_FROM_ADDRESS` to your Gmail address, and set
+`MAIL_PASSWORD` to a Google App Password (not your regular Gmail password).
+Keep these credentials only in the ignored `backend/.env`; never put them in
+frontend variables or commit them. Set `FRONTEND_URL` to the deployed frontend
+origin, then run `php artisan config:clear` and restart Laravel after changing
+mail settings. In local development, reset links expire after 60 minutes, and
+the API does not reveal whether an email address is registered.
+
+To use PostgreSQL instead, set `DB_CONNECTION=pgsql` in `backend/.env`, enable
+the `pdo_pgsql` PHP extension, and configure the database host, port, name, and
+credentials to match your PostgreSQL server before running migrations.
 
 After signing in, the landing page navigation links to **My Account** at
 `/account`. The account area includes profile details, password and privacy

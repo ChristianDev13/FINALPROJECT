@@ -3,8 +3,12 @@
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 Route::get('/health', fn () => response()->json([
     'status' => 'ok',
@@ -58,6 +62,59 @@ Route::middleware('throttle:6,1')->group(function () {
         return response()->json([
             'user' => $user,
             'token' => $user->createToken('frontend')->plainTextToken,
+        ]);
+    });
+
+    Route::post('/forgot-password', function () {
+        $validated = request()->validate([
+            'email' => ['required', 'string', 'email', 'max:255'],
+        ]);
+
+        try {
+            Password::sendResetLink([
+                'email' => strtolower($validated['email']),
+            ]);
+        } catch (TransportExceptionInterface $exception) {
+            Log::error('Password reset email could not be sent.', [
+                'exception' => $exception,
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'If an account exists for that email, a reset link will be sent. Check your inbox or try again later.',
+        ]);
+    });
+
+    Route::post('/reset-password', function () {
+        $validated = request()->validate([
+            'token' => ['required', 'string'],
+            'email' => ['required', 'string', 'email', 'max:255'],
+            'password' => ['required', 'string', 'min:8', 'max:255', 'confirmed'],
+        ]);
+
+        $status = Password::reset(
+            [
+                ...$validated,
+                'email' => strtolower($validated['email']),
+            ],
+            function (User $user, string $password): void {
+                $user->forceFill([
+                    'password' => $password,
+                    'remember_token' => Str::random(60),
+                ])->save();
+
+                $user->tokens()->delete();
+            },
+        );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            return response()->json([
+                'message' => 'This password reset link is invalid or expired. Request a new one and try again.',
+            ], 422);
+        }
+
+        return response()->json([
+            'message' => 'Your password has been reset. You can now log in with your new password.',
         ]);
     });
 });

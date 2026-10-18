@@ -62,6 +62,22 @@ export const authApi = {
     return data.user
   },
 
+  async requestPasswordReset(email) {
+    const data = await apiRequest('/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    })
+    return data.message
+  },
+
+  async resetPassword({ email, token, password, password_confirmation }) {
+    const data = await apiRequest('/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ email, token, password, password_confirmation }),
+    })
+    return data.message
+  },
+
   async logout() {
     const token = sessionStorage.getItem(TOKEN_KEY)
     try {
