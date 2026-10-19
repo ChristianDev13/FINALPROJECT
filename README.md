@@ -6,13 +6,28 @@ organized into two application folders:
 - `frontend/` — React, Vite, and Tailwind CSS
 - `backend/` — Laravel API, migrations, and database configuration
 
-The root `.env.example` is the shared configuration template for both apps.
-Copy it to `.env` in the repository root and keep that real environment file
-private; it is excluded by `.gitignore`.
+Both apps read configuration from `.env` in the repository root. Create that
+file locally; it is excluded by `.gitignore` and must never be committed.
 
 ## Local development
 
-1. Copy `.env.example` to `.env` in the repository root.
+1. Create a root `.env` file with local settings. At minimum:
+
+   ```dotenv
+   APP_NAME="Ptech Portfolio"
+   APP_ENV=local
+   APP_KEY=
+   APP_DEBUG=true
+   APP_URL=http://127.0.0.1:8000
+   FRONTEND_URL=http://localhost:5173
+   DB_CONNECTION=sqlite
+   DB_DATABASE=database/database.sqlite
+   VITE_API_URL=http://127.0.0.1:8000/api
+   ```
+
+   Add database credentials and mail settings only when you use those
+   services. Never share or commit real credentials.
+
 2. Install backend dependencies and prepare the SQLite database:
 
    ```sh
@@ -32,7 +47,6 @@ private; it is excluded by `.gitignore`.
    ```
 
 The frontend API URL is configurable with `VITE_API_URL` in the root `.env`.
-The default points to the local Laravel API.
 
 ## Password reset email
 

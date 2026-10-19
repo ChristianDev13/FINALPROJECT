@@ -2,7 +2,7 @@
 
 The Laravel migrations and seeders in this folder define the application
 database. SQLite is the default for local development. To use PostgreSQL,
-copy the repository-root `.env.example` to `.env` if needed, then configure
+create the repository-root `.env` file if needed, then configure
 `DB_CONNECTION=pgsql`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, `DB_PORT`,
 and `DB_HOST=127.0.0.1`. Choose a database name without path separators and
 use a unique password. Keep `.env` local; never commit it.
