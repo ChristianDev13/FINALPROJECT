@@ -15,7 +15,6 @@ docker compose --env-file .env up -d
 ```
 
 Use a different secret before exposing PostgreSQL outside your machine.
-
 Run the Laravel migrations from `backend/` to create the complete application
 schema and starter templates:
 
