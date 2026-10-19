@@ -1,0 +1,58 @@
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs and operating system files
+*.log
+.DS_Store
+Thumbs.db
+
+# Editor and local tooling files
+.phpactor.json
+.codex/
+.cursor/
+.idea/
+.nova/
+.phpunit.cache/
+.vscode/*
+!.vscode/extensions.json
+/backend/.vscode/*
+!/backend/.vscode/extensions.json
+/frontend/.vscode/*
+!/frontend/.vscode/extensions.json
+.zed/
+auth.json
+Homestead.json
+Homestead.yaml
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# PHP / Laravel
+backend/.phpunit.result.cache
+backend/vendor/
+backend/public/build/
+backend/public/fonts-manifest.dev.json
+backend/public/hot
+backend/public/storage
+backend/storage/*.key
+backend/storage/pail
+backend/auth.json
+backend/database/*.sqlite*
+
+# Node / Vite
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+/backend/.phpunit.cache/
+/frontend/.phpunit.cache/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*

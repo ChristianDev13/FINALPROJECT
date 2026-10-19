@@ -2,16 +2,16 @@
 
 The Laravel migrations and seeders in this folder define the application
 database. SQLite is the default for local development. To use PostgreSQL,
-copy `backend/.env.example` to `backend/.env` if needed, then configure
+copy the repository-root `.env.example` to `.env` if needed, then configure
 `DB_CONNECTION=pgsql`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, `DB_PORT`,
-and `DB_HOST=127.0.0.1`. Choose a database name without path separators and a
-unique password; do not commit `.env`.
+and `DB_HOST=127.0.0.1`. Choose a database name without path separators and
+use a unique password. Keep `.env` local; never commit it.
 
 Start the PostgreSQL 17 container from `backend/` after configuring those
 values:
 
 ```sh
-docker compose --env-file .env up -d
+docker compose --env-file ../.env up -d
 ```
 
 Use a different secret before exposing PostgreSQL outside your machine.
