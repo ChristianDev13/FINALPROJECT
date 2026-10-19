@@ -66,7 +66,8 @@ image is defined in [`backend/Dockerfile`](backend/Dockerfile).
 2. In Render, create a Blueprint for this repository and choose the `main`
    branch. During initial setup, provide the deployed Vercel origin for both
    `FRONTEND_URL` and `CORS_ALLOWED_ORIGINS`. Render generates `APP_KEY` and
-   connects the API to its PostgreSQL database.
+   connects the API to its PostgreSQL database. Its generated 256-bit key is
+   recognized as Laravel's base64 key format automatically.
 3. After Render finishes deploying, add `VITE_API_URL` to the Vercel project
    environment variables, using the Render API URL followed by `/api`, then
    redeploy. The Vercel routing configuration supports React Router routes

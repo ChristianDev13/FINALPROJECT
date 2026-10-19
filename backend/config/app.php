@@ -1,5 +1,14 @@
 <?php
 
+$appKey = env('APP_KEY');
+$decodedAppKey = is_string($appKey) && ! str_starts_with($appKey, 'base64:')
+    ? base64_decode($appKey, true)
+    : false;
+
+if (is_string($decodedAppKey) && strlen($decodedAppKey) === 32) {
+    $appKey = 'base64:' . $appKey;
+}
+
 return [
 
     /*
@@ -99,7 +108,7 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
-    'key' => env('APP_KEY'),
+    'key' => $appKey,
 
     'previous_keys' => [
         ...array_filter(
