@@ -85,6 +85,7 @@ class AuthApiTest extends TestCase
     public function test_password_reset_email_can_reset_password_and_revoke_existing_tokens(): void
     {
         Notification::fake();
+        config(['app.frontend_url' => 'https://portfolio.example.test']);
         $user = User::factory()->create([
             'email' => 'taylor@example.com',
             'password' => 'old-password-value',
@@ -92,10 +93,10 @@ class AuthApiTest extends TestCase
         $user->createToken('frontend');
 
         $this->postJson('/api/forgot-password', [
-            'email' => 'TAYLOR@example.com',
+            'email' => '  TAYLOR@example.com  ',
         ])->assertOk()
             ->assertExactJson([
-                'message' => 'If an account exists for that email, a reset link will be sent. Check your inbox or try again later.',
+                'message' => 'If an account exists for that email and email delivery is available, a reset link will arrive shortly. Check your inbox or spam folder, or try again later.',
             ]);
 
         $resetToken = null;
@@ -105,11 +106,12 @@ class AuthApiTest extends TestCase
             $query = [];
             parse_str((string) parse_url($resetUrl, PHP_URL_QUERY), $query);
 
-            $this->assertSame('http', parse_url($resetUrl, PHP_URL_SCHEME));
-            $this->assertSame('localhost', parse_url($resetUrl, PHP_URL_HOST));
+            $this->assertSame('https', parse_url($resetUrl, PHP_URL_SCHEME));
+            $this->assertSame('portfolio.example.test', parse_url($resetUrl, PHP_URL_HOST));
             $this->assertSame('/reset-password', parse_url($resetUrl, PHP_URL_PATH));
             $this->assertSame($notification->token, $query['token'] ?? null);
             $this->assertSame($user->email, $query['email'] ?? null);
+
             return true;
         });
 
@@ -158,7 +160,7 @@ class AuthApiTest extends TestCase
             'email' => 'missing@example.com',
         ])->assertOk()
             ->assertExactJson([
-                'message' => 'If an account exists for that email, a reset link will be sent. Check your inbox or try again later.',
+                'message' => 'If an account exists for that email and email delivery is available, a reset link will arrive shortly. Check your inbox or spam folder, or try again later.',
             ]);
 
         Notification::assertNothingSent();

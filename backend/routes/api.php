@@ -66,13 +66,18 @@ Route::middleware('throttle:6,1')->group(function () {
     });
 
     Route::post('/forgot-password', function () {
-        $validated = request()->validate([
+        $passwordResetRequest = request();
+        $passwordResetRequest->merge([
+            'email' => strtolower(trim($passwordResetRequest->input('email', ''))),
+        ]);
+
+        $validated = $passwordResetRequest->validate([
             'email' => ['required', 'string', 'email', 'max:255'],
         ]);
 
         try {
             Password::sendResetLink([
-                'email' => strtolower($validated['email']),
+                'email' => $validated['email'],
             ]);
         } catch (TransportExceptionInterface $exception) {
             Log::error('Password reset email could not be sent.', [
@@ -81,7 +86,7 @@ Route::middleware('throttle:6,1')->group(function () {
         }
 
         return response()->json([
-            'message' => 'If an account exists for that email, a reset link will be sent. Check your inbox or try again later.',
+            'message' => 'If an account exists for that email and email delivery is available, a reset link will arrive shortly. Check your inbox or spam folder, or try again later.',
         ]);
     });
 

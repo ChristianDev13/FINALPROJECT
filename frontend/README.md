@@ -49,9 +49,12 @@ origin, then run `php artisan config:clear` and restart Laravel after changing
 mail settings. In local development, reset links expire after 60 minutes, and
 the API does not reveal whether an email address is registered.
 
-To use PostgreSQL instead, set `DB_CONNECTION=pgsql` in `backend/.env`, enable
-the `pdo_pgsql` PHP extension, and configure the database host, port, name, and
-credentials to match your PostgreSQL server before running migrations.
+To use PostgreSQL instead, enable the `pdo_pgsql` PHP extension and configure
+`DB_CONNECTION=pgsql`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, and
+`DB_PORT` in `backend/.env`. The PostgreSQL Compose file and schema reference
+are in `backend/compose.yaml` and `backend/database/`; see
+`backend/database/README.md` for setup instructions. Keep database credentials
+in the ignored `.env` file, not in source code.
 
 After signing in, the landing page navigation links to **My Account** at
 `/account`. The account area includes profile details, password and privacy
