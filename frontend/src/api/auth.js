@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'
+const API_URL = import.meta.env.VITE_API_URL?.trim().replace(/\/+$/, '')
 const TOKEN_KEY = 'ptech_auth_token'
 
 async function fetchApi(url, options) {
@@ -13,6 +13,10 @@ async function fetchApi(url, options) {
 }
 
 export async function apiRequest(path, { token, ...options } = {}) {
+  if (!API_URL) {
+    throw new Error('The portfolio API URL is not configured. Set VITE_API_URL in the frontend environment and redeploy.')
+  }
+
   const response = await fetchApi(`${API_URL}${path}`, {
     ...options,
     headers: {

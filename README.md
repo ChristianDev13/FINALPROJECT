@@ -46,7 +46,12 @@ file locally; it is excluded by `.gitignore` and must never be committed.
    npm run dev
    ```
 
-The frontend API URL is configurable with `VITE_API_URL` in the root `.env`.
+The frontend API URL is configured with `VITE_API_URL` in the root `.env` for
+local development. Set the same variable in the Vercel project's Production
+environment and redeploy after changing it. The frontend has no localhost API
+fallback, so missing configuration is reported instead of sending auth
+requests to an unrelated local address. `VITE_` variables are included in the
+browser bundle; only put the public API URL there, never credentials or secrets.
 
 ## Password reset email
 
