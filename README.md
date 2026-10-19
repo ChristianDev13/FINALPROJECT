@@ -56,7 +56,27 @@ reset emails, configure `MAIL_MAILER`, `MAIL_HOST`, `MAIL_PORT`,
 For Gmail, use a Google App Password. Set `FRONTEND_URL` to the frontend's
 deployed origin for production links. Never commit real mail credentials.
 
-## PostgreSQL
+## Deployment
+
+The Render Blueprint is in [`render.yaml`](render.yaml); the backend Docker
+image is defined in [`backend/Dockerfile`](backend/Dockerfile).
+
+1. In Vercel, import this repository and set the project root directory to
+   `frontend`. Deploy once to get the Vercel production origin.
+2. In Render, create a Blueprint for this repository and choose the `main`
+   branch. During initial setup, provide the deployed Vercel origin for both
+   `FRONTEND_URL` and `CORS_ALLOWED_ORIGINS`. Render generates `APP_KEY` and
+   connects the API to its PostgreSQL database.
+3. After Render finishes deploying, add `VITE_API_URL` to the Vercel project
+   environment variables, using the Render API URL followed by `/api`, then
+   redeploy. The Vercel routing configuration supports React Router routes
+   such as `/login` and `/register`.
+
+The free Render web service may sleep when idle, and the free PostgreSQL plan
+is temporary and has limited storage. For persistent production accounts,
+upgrade the database plan and web service before relying on this deployment.
+
+## PostgreSQL for local development
 
 SQLite is the default for local development. To use PostgreSQL, enable the PHP
 `pdo_pgsql` extension and set `DB_CONNECTION=pgsql`,
