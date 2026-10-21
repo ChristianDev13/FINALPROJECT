@@ -233,11 +233,6 @@ function AuthPage({ mode }) {
                 required
               />
             </div>}
-            {!isRegister && !isForgot && !isReset && (
-              <Link className="auth-forgot-link" to="/forgot-password" state={{ email: form.email }}>
-                Forgot password?
-              </Link>
-            )}
             {!isForgot && (
               <PasswordField
                 id="password"
