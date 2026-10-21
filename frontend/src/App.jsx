@@ -194,6 +194,24 @@ function App() {
     }
   }
 
+  function handleBuildPortfolio() {
+    const builderPath = selectedTemplate === 'Creative'
+      ? '/create/creative'
+      : selectedTemplate === 'Professional'
+        ? '/create/professional'
+        : '/create'
+    const state = { template: selectedTemplate, selectedTemplate }
+
+    if (!signedIn) {
+      navigate('/login', {
+        state: { from: builderPath, ...state },
+      })
+      return
+    }
+
+    navigate(builderPath, { state })
+  }
+
   return (
     <div className="min-h-screen overflow-x-clip bg-[#08090c] text-white">
       <header className="site-header" data-sticky-nav>
@@ -338,16 +356,9 @@ function App() {
               <button
                 type="button"
                 className="select-button"
-                onClick={() => navigate(
-                  selectedTemplate === 'Creative'
-                    ? '/create/creative'
-                    : selectedTemplate === 'Professional'
-                      ? '/create/professional'
-                      : '/create',
-                  { state: { template: selectedTemplate } },
-                )}
+                onClick={handleBuildPortfolio}
               >
-                Build your portfolio
+                {signedIn ? 'Build your portfolio' : 'Log in to build your portfolio'}
               </button>
             </div>
           )}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Eye, EyeOff, Menu, X } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { accountApi } from './api/account.js'
 import { authApi } from './api/auth.js'
 
 function PasswordField({ id, label, value, onChange, autoComplete }) {
@@ -122,17 +123,20 @@ function AuthPage({ mode }) {
       }
 
       const user = await authApi.login({ email: form.email, password: form.password })
+      const selectedTemplate = location.state?.selectedTemplate
+      if (selectedTemplate) {
+        await accountApi.selectTemplate(selectedTemplate.toLowerCase())
+      }
+
       const returnTo = location.state?.from ?? '/'
-      const returnState = returnTo === '/create'
-        ? { template: location.state?.template }
-        : {
-            selectedTemplate: location.state?.selectedTemplate,
-            authNotice: `Welcome back, ${user.name}!`,
-          }
 
       navigate(returnTo, {
         replace: true,
-        state: returnState,
+        state: {
+          template: location.state?.template,
+          selectedTemplate,
+          authNotice: `Welcome back, ${user.name}!`,
+        },
       })
     } catch (requestError) {
       setError(requestError.message)
